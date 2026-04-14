@@ -1,0 +1,290 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --pink:#ff2d78;--purple:#7c3aed;--blue:#2563eb;--cyan:#06b6d4;--lime:#84cc16;--amber:#f59e0b;--red:#ef4444;--green:#22c55e;
+    --bg:#0f0a1e;--surface:#1a1030;--card:#231540;--border:rgba(124,58,237,0.3);
+  }
+  body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:#f0e6ff;min-height:600px;padding:0}
+  .app{max-width:720px;margin:0 auto;padding:20px 16px 40px}
+
+  .header{text-align:center;padding:24px 0 20px;position:relative}
+  .logo-badge{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#7c3aed22,#ff2d7822);border:1px solid var(--border);border-radius:100px;padding:6px 16px;font-size:12px;color:#c4b5fd;margin-bottom:16px;letter-spacing:0.05em}
+  .logo-dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--pink));animation:pulse 2s infinite}
+  h1{font-size:28px;font-weight:700;background:linear-gradient(135deg,#fff 0%,#c4b5fd 40%,#ff2d78 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2;margin-bottom:6px}
+  .subtitle{font-size:13px;color:#9d8ec0;letter-spacing:0.03em}
+
+  .wallet-bar{display:flex;justify-content:center;margin-bottom:20px}
+  .wallet-btn{background:linear-gradient(135deg,var(--purple),var(--pink));border:none;border-radius:100px;padding:10px 24px;color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+  .wallet-btn:hover{transform:scale(1.04);box-shadow:0 0 24px rgba(124,58,237,0.5)}
+  .wallet-btn.connected{background:linear-gradient(135deg,#064e3b,#065f46);border:1px solid var(--green);color:#6ee7b7}
+  .wallet-addr{font-family:'JetBrains Mono',monospace;font-size:11px}
+
+  .scan-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:20px}
+  .input-wrap{position:relative;margin-bottom:14px}
+  .addr-input{width:100%;background:#0f0a1e;border:1.5px solid rgba(124,58,237,0.4);border-radius:12px;padding:14px 16px;color:#f0e6ff;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:all 0.2s}
+  .addr-input:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,45,120,0.15)}
+  .addr-input::placeholder{color:#5a4a7a;font-family:'Space Grotesk',sans-serif;font-size:13px}
+  .addr-input.shake{animation:shake 0.4s ease}
+  .scan-btn{width:100%;background:linear-gradient(135deg,var(--purple) 0%,var(--pink) 50%,var(--amber) 100%);border:none;border-radius:12px;padding:14px;color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;letter-spacing:0.03em}
+  .scan-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 32px rgba(255,45,120,0.35)}
+  .scan-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+  .scan-btn.scanning{background:linear-gradient(135deg,var(--purple),var(--blue),var(--cyan));background-size:200% 200%;animation:gradshift 1.5s infinite}
+
+  .checks-grid{display:grid;gap:10px}
+  .check-card{background:var(--card);border:1px solid rgba(124,58,237,0.2);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;transition:all 0.3s;opacity:0.5}
+  .check-card.active{opacity:1;border-color:rgba(6,182,212,0.4);background:linear-gradient(135deg,#231540,#1a2040)}
+  .check-card.pass{opacity:1;border-color:rgba(34,197,94,0.4);background:linear-gradient(135deg,#231540,#0f2820)}
+  .check-card.fail{opacity:1;border-color:rgba(239,68,68,0.4);background:linear-gradient(135deg,#231540,#2a0f0f)}
+  .check-card.warn{opacity:1;border-color:rgba(245,158,11,0.4);background:linear-gradient(135deg,#231540,#2a1f0f)}
+  .check-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .check-info{flex:1;min-width:0}
+  .check-name{font-size:13px;font-weight:600;color:#e2d9f3;margin-bottom:2px}
+  .check-detail{font-size:11px;color:#9d8ec0;font-family:'JetBrains Mono',monospace}
+  .check-status{font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px;white-space:nowrap}
+  .status-pending{background:#1a1030;color:#5a4a7a;border:1px solid #2a1a4a}
+  .status-running{background:rgba(6,182,212,0.15);color:var(--cyan);border:1px solid rgba(6,182,212,0.3);animation:blink 1s infinite}
+  .status-pass{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+  .status-fail{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
+  .status-warn{background:rgba(245,158,11,0.15);color:var(--amber);border:1px solid rgba(245,158,11,0.3)}
+
+  .score-section{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:24px;margin-top:20px;text-align:center;display:none}
+  .score-section.visible{display:block;animation:fadeup 0.5s ease}
+  .score-label{font-size:12px;color:#9d8ec0;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:16px}
+  .score-dial{position:relative;width:140px;height:140px;margin:0 auto 16px}
+  .score-dial svg{transform:rotate(-90deg)}
+  .score-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:38px;font-weight:700;font-family:'JetBrains Mono',monospace}
+  .verdict{font-size:20px;font-weight:700;margin-bottom:8px}
+  .verdict-safe{color:var(--green)}
+  .verdict-caution{color:var(--amber)}
+  .verdict-danger{color:var(--red)}
+  .verdict-sub{font-size:12px;color:#9d8ec0}
+
+  .confetti-wrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+  .confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettifall 2s ease-in forwards}
+
+  .warn-banner{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(239,68,68,0.1));border:1px solid rgba(245,158,11,0.4);border-radius:12px;padding:12px 16px;font-size:12px;color:#fcd34d;margin-bottom:14px;display:none;align-items:center;gap:8px}
+  .warn-banner.visible{display:flex;animation:blink-border 1s infinite}
+
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.85)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.5}}
+  @keyframes gradshift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  @keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes confettifall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+  @keyframes blink-border{0%,100%{border-color:rgba(245,158,11,0.4)}50%{border-color:rgba(245,158,11,0.9)}}
+  @keyframes skull{0%,100%{transform:scale(1) rotate(0deg)}25%{transform:scale(1.1) rotate(-5deg)}75%{transform:scale(1.1) rotate(5deg)}}
+</style>
+
+<div class="app">
+  <div class="header">
+    <div class="logo-badge"><span class="logo-dot"></span>Powered by OpenGradient Network</div>
+    <h1>Token Audit Lab</h1>
+    <p class="subtitle">AI-verified onchain risk analysis</p>
+  </div>
+
+  <div class="wallet-bar">
+    <button class="wallet-btn" id="walletBtn" onclick="toggleWallet()">Connect Wallet</button>
+  </div>
+
+  <div class="scan-card">
+    <div class="warn-banner" id="warnBanner">
+      <span style="font-size:16px">⚠</span>
+      <span>Unverified contract detected. Proceeding with available checks.</span>
+    </div>
+    <div class="input-wrap">
+      <input class="addr-input" id="addrInput" placeholder="Enter token contract address (0x...)" maxlength="42" />
+    </div>
+    <button class="scan-btn" id="scanBtn" onclick="startScan()">Run Audit</button>
+  </div>
+
+  <div class="checks-grid" id="checksGrid"></div>
+
+  <div class="score-section" id="scoreSection">
+    <div class="score-label">Overall Risk Score</div>
+    <div class="score-dial">
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="56" fill="none" stroke="#1a1030" stroke-width="12"/>
+        <circle cx="70" cy="70" r="56" fill="none" stroke-width="12" stroke-linecap="round"
+          id="dialArc" stroke-dasharray="352" stroke-dashoffset="352" style="transition:stroke-dashoffset 1.2s ease,stroke 0.5s"/>
+      </svg>
+      <div class="score-num" id="scoreNum">0</div>
+    </div>
+    <div class="verdict" id="verdictText"></div>
+    <div class="verdict-sub" id="verdictSub"></div>
+  </div>
+</div>
+
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<script>
+const checks = [
+  {id:'verify',icon:'📋',name:'Contract Verification',detail:'Checking source code on explorer'},
+  {id:'supply',icon:'💰',name:'Supply & Distribution',detail:'Analyzing holder concentration'},
+  {id:'mint',icon:'🖨️',name:'Mint Authority',detail:'Checking unlimited mint capability'},
+  {id:'owner',icon:'🔑',name:'Ownership Status',detail:'Is ownership renounced?'},
+  {id:'honey',icon:'🍯',name:'Honeypot Detection',detail:'Can holders actually sell?'},
+  {id:'liq',icon:'💧',name:'Liquidity Lock',detail:'Checking lock status & duration'},
+  {id:'tax',icon:'📊',name:'Transaction Tax',detail:'Buy/sell tax analysis'},
+  {id:'proxy',icon:'🔄',name:'Proxy Contract Risk',detail:'Can contract be upgraded?'},
+];
+
+let connected = false;
+let scanning = false;
+
+function toggleWallet() {
+  const btn = document.getElementById('walletBtn');
+  connected = !connected;
+  if (connected) {
+    btn.className = 'wallet-btn connected';
+    btn.innerHTML = '<span class="wallet-addr">0xACe...B1t ✓</span>';
+  } else {
+    btn.className = 'wallet-btn';
+    btn.textContent = 'Connect Wallet';
+  }
+}
+
+function renderChecks(states) {
+  const grid = document.getElementById('checksGrid');
+  grid.innerHTML = checks.map(c => {
+    const s = states[c.id] || 'pending';
+    let cardClass = 'check-card';
+    let statusClass = 'status-pending', statusTxt = 'Pending';
+    let detail = c.detail;
+    if (s === 'running') { cardClass += ' active'; statusClass = 'status-running'; statusTxt = 'Scanning...'; }
+    if (s.result === 'pass') { cardClass += ' pass'; statusClass = 'status-pass'; statusTxt = 'Passed'; detail = s.detail || detail; }
+    if (s.result === 'fail') { cardClass += ' fail'; statusClass = 'status-fail'; statusTxt = 'Risk Found'; detail = s.detail || detail; }
+    if (s.result === 'warn') { cardClass += ' warn'; statusClass = 'status-warn'; statusTxt = 'Warning'; detail = s.detail || detail; }
+    return `<div class="${cardClass}">
+      <div class="check-icon" style="background:${iconBg(c.id)}">${c.icon}</div>
+      <div class="check-info">
+        <div class="check-name">${c.name}</div>
+        <div class="check-detail">${detail}</div>
+      </div>
+      <span class="check-status ${statusClass}">${statusTxt}</span>
+    </div>`;
+  }).join('');
+}
+
+function iconBg(id) {
+  const m = {verify:'rgba(124,58,237,0.2)',supply:'rgba(245,158,11,0.2)',mint:'rgba(6,182,212,0.2)',owner:'rgba(34,197,94,0.2)',honey:'rgba(255,45,120,0.2)',liq:'rgba(37,99,235,0.2)',tax:'rgba(132,204,22,0.2)',proxy:'rgba(239,68,68,0.2)'};
+  return m[id] || 'rgba(124,58,237,0.15)';
+}
+
+const mockResults = {
+  verify:{result:'pass',detail:'Source code verified on explorer'},
+  supply:{result:'warn',detail:'Top 10 holders control 68% of supply'},
+  mint:{result:'pass',detail:'Mint function disabled'},
+  owner:{result:'pass',detail:'Ownership renounced at block #18204411'},
+  honey:{result:'pass',detail:'Sell transactions confirmed working'},
+  liq:{result:'warn',detail:'Liquidity locked for 90 days only'},
+  tax:{result:'pass',detail:'Buy 2% / Sell 2% — within normal range'},
+  proxy:{result:'pass',detail:'Non-upgradeable contract confirmed'},
+};
+
+async function startScan() {
+  if (scanning) return;
+  const addr = document.getElementById('addrInput').value.trim();
+  if (!addr.startsWith('0x') || addr.length !== 42) {
+    document.getElementById('addrInput').classList.add('shake');
+    setTimeout(() => document.getElementById('addrInput').classList.remove('shake'), 500);
+    return;
+  }
+  if (!connected) { toggleWallet(); }
+  scanning = true;
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  btn.className = 'scan-btn scanning';
+  btn.textContent = 'Scanning...';
+  document.getElementById('scoreSection').className = 'score-section';
+  document.getElementById('warnBanner').className = 'warn-banner';
+  const states = {};
+  checks.forEach(c => states[c.id] = 'pending');
+  renderChecks(states);
+
+  for (let i = 0; i < checks.length; i++) {
+    const c = checks[i];
+    states[c.id] = 'running';
+    renderChecks(states);
+    await sleep(600 + Math.random() * 500);
+    states[c.id] = mockResults[c.id];
+    renderChecks(states);
+    if (c.id === 'verify' && mockResults[c.id].result === 'warn') {
+      document.getElementById('warnBanner').className = 'warn-banner visible';
+    }
+    await sleep(150);
+  }
+
+  const fails = Object.values(mockResults).filter(r => r.result === 'fail').length;
+  const warns = Object.values(mockResults).filter(r => r.result === 'warn').length;
+  const score = Math.min(100, fails * 22 + warns * 14 + 12);
+  showScore(score);
+
+  btn.disabled = false;
+  btn.className = 'scan-btn';
+  btn.textContent = 'Run Audit';
+  scanning = false;
+}
+
+function showScore(score) {
+  const sec = document.getElementById('scoreSection');
+  const arc = document.getElementById('dialArc');
+  const numEl = document.getElementById('scoreNum');
+  const vText = document.getElementById('verdictText');
+  const vSub = document.getElementById('verdictSub');
+  sec.className = 'score-section visible';
+  const circ = 352;
+  const offset = circ - (circ * score / 100);
+  setTimeout(() => {
+    arc.style.strokeDashoffset = offset;
+    let color = score < 30 ? '#22c55e' : score < 70 ? '#f59e0b' : '#ef4444';
+    arc.style.stroke = color;
+    numEl.style.color = color;
+  }, 100);
+  let n = 0;
+  const interval = setInterval(() => {
+    n = Math.min(n + 2, score);
+    numEl.textContent = n;
+    if (n >= score) clearInterval(interval);
+  }, 20);
+  if (score < 30) {
+    vText.className = 'verdict verdict-safe';
+    vText.textContent = 'SAFE';
+    vSub.textContent = 'Low risk detected. This token passed most checks.';
+    launchConfetti();
+  } else if (score < 70) {
+    vText.className = 'verdict verdict-caution';
+    vText.textContent = 'CAUTION';
+    vSub.textContent = 'Moderate risk. Review flagged items before investing.';
+  } else {
+    vText.className = 'verdict verdict-danger';
+    vText.textContent = '💀 DANGER';
+    vSub.textContent = 'High risk detected. Proceed with extreme caution.';
+    numEl.style.animation = 'skull 0.4s infinite';
+  }
+}
+
+function launchConfetti() {
+  const wrap = document.getElementById('confettiWrap');
+  const colors = ['#ff2d78','#7c3aed','#06b6d4','#84cc16','#f59e0b','#fff'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = Math.random() * 100 + '%';
+    el.style.top = '-10px';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay = Math.random() * 1.2 + 's';
+    el.style.animationDuration = (1.5 + Math.random()) + 's';
+    el.style.transform = `rotate(${Math.random()*360}deg)`;
+    wrap.appendChild(el);
+  }
+  setTimeout(() => wrap.innerHTML = '', 4000);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+const states = {};
+checks.forEach(c => states[c.id] = 'pending');
+renderChecks(states);
+</script>
